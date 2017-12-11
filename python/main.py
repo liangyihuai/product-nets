@@ -21,8 +21,10 @@ if not p in sys.path:
 from python import utils
 from python.models import LR, FM, PNN1, PNN2, FNN, CCPM
 
-train_file = '../data/train.yx.txt'
-test_file = '../data/test.yx.txt'
+data_path = "D:/LiangYiHuai/kaggle/music-recommendation-data/input/";
+
+train_file = data_path + 'one_hot_train.txt'
+test_file = data_path + 'one_hot_test.txt'
 
 input_dim = utils.INPUT_DIM
 
@@ -57,7 +59,7 @@ algo = 'pnn2'
 
 if algo in {'fnn', 'ccpm', 'pnn1', 'pnn2'}:
     train_data = utils.split_data(train_data)
-    test_data = utils.split_data(test_data)
+    # test_data = utils.split_data(test_data)
     tmp = []
     for x in field_sizes:
         if x > 0:
@@ -177,14 +179,14 @@ def train(model):
             preds = model.run(model.y_prob, X_i, mode='test')
             test_preds.extend(preds)
         train_score = roc_auc_score(train_data[1], train_preds)
-        test_score = roc_auc_score(test_data[1], test_preds)
-        print('[%d]\tloss (with l2 norm):%f\ttrain-auc: %f\teval-auc: %f' % (i, np.mean(ls), train_score, test_score))
-        history_score.append(test_score)
+        # test_score = roc_auc_score(test_data[1], test_preds)
+        # print('[%d]\tloss (with l2 norm):%f\ttrain-auc: %f\teval-auc: %f' % (i, np.mean(ls), train_score, test_score))
+        print('[%d]\tloss (with l2 norm):%f\ttrain-auc: %f\teval-auc: %f' % (i, np.mean(ls), train_score, 1.0))
+        # history_score.append(test_score)
         if i > min_round and i > early_stop_round:
             if np.argmax(history_score) == i - early_stop_round and history_score[-1] - history_score[
                         -1 * early_stop_round] < 1e-5:
-                print('early stop\nbest iteration:\n[%d]\teval-auc: %f' % (
-                    np.argmax(history_score), np.max(history_score)))
+                print('early stop\nbest iteration:\n[%d]\teval-auc: %f' % (np.argmax(history_score), np.max(history_score)))
                 break
 
 train(model)

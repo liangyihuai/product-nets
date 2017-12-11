@@ -14,13 +14,19 @@ from scipy.sparse import coo_matrix
 
 DTYPE = tf.float32
 
-FIELD_SIZES = [0] * 26
-with open('../data/featindex.txt') as fin:
-    for line in fin:
-        line = line.strip().split(':')
-        if len(line) > 1:
-            f = int(line[0]) - 1
-            FIELD_SIZES[f] += 1
+# data_path = "D:/LiangYiHuai/kaggle/music-recommendation-data/1458/";
+data_path = 'D:\\LiangYiHuai\\kaggle\\music-recommendation-data\\input\\'
+
+
+FIELD_SIZES = [34403, 419839, 10, 23, 13, 65594, 609, 11, 9, 21, 94, 3, 6, 31, 4346, 14, 12, 31, 18, 12, 101, 24, 29, 2, 10, 2, 2, 2, 2, 1845, 1636]
+
+# FIELD_SIZES = [0] * 35
+# with open(data_path + '/featindex.txt') as fin:
+#     for line in fin:
+#         line = line.strip().split(':')
+#         if len(line) > 1:
+#             f = int(line[0]) - 1
+#             FIELD_SIZES[f] += 1
 print('field sizes:', FIELD_SIZES)
 FIELD_OFFSETS = [sum(FIELD_SIZES[:i]) for i in range(len(FIELD_SIZES))]
 INPUT_DIM = sum(FIELD_SIZES)
@@ -34,9 +40,13 @@ def read_data(file_name):
     X = []
     D = []
     y = []
+    is_first_row = True;
     with open(file_name) as fin:
         for line in fin:
-            fields = line.strip().split()
+            if is_first_row:
+                is_first_row = False;
+                continue;
+            fields = line.strip().split('\t')
             y_i = int(fields[0])
             X_i = [int(x.split(':')[0]) for x in fields[1:]]
             D_i = [int(x.split(':')[1]) for x in fields[1:]]
@@ -46,14 +56,6 @@ def read_data(file_name):
     y = np.reshape(np.array(y), [-1])
     X = libsvm_2_coo(zip(X, D), (len(X), INPUT_DIM)).tocsr()
     return X, y
-
-
-def shuffle(data):
-    X, y = data
-    ind = np.arange(X.shape[0])
-    for i in range(7):
-        np.random.shuffle(ind)
-    return X[ind], y[ind]
 
 
 def libsvm_2_coo(libsvm_data, shape):
@@ -70,6 +72,14 @@ def libsvm_2_coo(libsvm_data, shape):
     coo_cols = np.array(coo_cols)
     coo_data = np.array(coo_data)
     return coo_matrix((coo_data, (coo_rows, coo_cols)), shape=shape)
+
+
+def shuffle(data):
+    X, y = data
+    ind = np.arange(X.shape[0])
+    for i in range(7):
+        np.random.shuffle(ind)
+    return X[ind], y[ind]
 
 
 def csr_2_input(csr_mat):
