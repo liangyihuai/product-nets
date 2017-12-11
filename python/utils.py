@@ -18,7 +18,7 @@ DTYPE = tf.float32
 data_path = 'D:\\LiangYiHuai\\kaggle\\music-recommendation-data\\input\\'
 
 
-FIELD_SIZES = [34403, 419839, 10, 23, 13, 65594, 609, 11, 9, 21, 94, 3, 6, 31, 4346, 14, 12, 31, 18, 12, 101, 24, 29, 2, 10, 2, 2, 2, 2, 1845, 1636]
+FIELD_SIZES = [10, 23, 13, 609, 11, 9, 21, 94, 3, 6, 31, 4346, 14, 12, 31, 18, 12, 101, 24, 29, 2, 10, 2, 2, 2, 2, 1845, 1636]
 
 # FIELD_SIZES = [0] * 35
 # with open(data_path + '/featindex.txt') as fin:

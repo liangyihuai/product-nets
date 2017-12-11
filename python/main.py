@@ -2,6 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
+import pandas as pd;
 import sys
 if sys.version[0] == '2':
     import cPickle as pkl
@@ -48,7 +49,7 @@ test_size = test_data[0].shape[0]
 num_feas = len(utils.FIELD_SIZES)
 
 min_round = 1
-num_round = 200
+num_round = 2
 early_stop_round = 5
 batch_size = 1024
 
@@ -172,12 +173,7 @@ def train(model):
             X_i, _ = utils.slice(train_data, j * 10000, 10000)
             preds = model.run(model.y_prob, X_i, mode='test')
             train_preds.extend(preds)
-        test_preds = []
-        bar = progressbar.ProgressBar()
-        for j in bar(range(int(test_size / 10000 + 1))):
-            X_i, _ = utils.slice(test_data, j * 10000, 10000)
-            preds = model.run(model.y_prob, X_i, mode='test')
-            test_preds.extend(preds)
+
         train_score = roc_auc_score(train_data[1], train_preds)
         # test_score = roc_auc_score(test_data[1], test_preds)
         # print('[%d]\tloss (with l2 norm):%f\ttrain-auc: %f\teval-auc: %f' % (i, np.mean(ls), train_score, test_score))
@@ -188,5 +184,18 @@ def train(model):
                         -1 * early_stop_round] < 1e-5:
                 print('early stop\nbest iteration:\n[%d]\teval-auc: %f' % (np.argmax(history_score), np.max(history_score)))
                 break
+
+    test_preds = []
+    bar = progressbar.ProgressBar()
+    for j in bar(range(int(test_size / 10000 + 1))):
+        X_i, _ = utils.slice(test_data, j * 10000, 10000)
+        preds = model.run(model.y_prob, X_i, mode='test')
+        test_preds.extend(preds)
+
+    test_ids = np.asarray(test_data[1]);
+    subm = pd.DataFrame()
+    subm['id'] = test_ids;
+    subm['target'] = test_preds
+    subm.to_csv(data_path + 'net_products_submission.csv.gz', compression='gzip', index=False, float_format='%.5f')
 
 train(model)
